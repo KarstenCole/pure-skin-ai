@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Diagnosis - Pure Skin AI</title>
+</head>
+
+<body onload="init()">
+    <div style="text-align:center; font-size: 70px;color:#747474;font-family:'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">AI SKIN DIAGOSIS</div>
+    <div style="text-align:center; font-size: 20px;color:#747474;font-family:'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">Make sure your face fill up most of the frame</div>
+    <!-- <button type="button" onclick="init()">Start</button> -->
+    <div id="webcam-container" style="text-align:center;"></div>
+    <div style="text-align:center;" id="label-container"></div>
+
+    <div id="result-section" style="font-size:40px;margin:auto; width: 20%; text-align: center; background-color: aquamarine; color: grey; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;"> Loading...</div>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script type="text/javascript">
+        // More API functions here:
+        // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+
+        // the link to your model provided by Teachable Machine export panel
+        const URL = "./tm-my-image-model/";
+        let result = null;
+
+        let model, webcam, labelContainer, maxPredictions;
+
+        setTimeout(() => {
+            console.log("Loading...");
+            reveal();
+        }, "5000");
+
+        // Load the image model and setup the webcam
+        async function init() {
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            // load the model and metadata
+            // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+            // or files from your local hard drive
+            // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+
+            // Convenience function to setup a webcam
+            const flip = true; // whether to flip the webcam
+            webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+            await webcam.setup(); // request access to the webcam
+            await webcam.play();
+            window.requestAnimationFrame(loop);
+
+            // append elements to the DOM
+            document.getElementById("webcam-container").appendChild(webcam.canvas);
+            labelContainer = document.getElementById("label-container");
+            let caption = document.createElement("div");
+            caption.style.fontSize = "20px";
+            caption.style.fontFamily = "Arial";
+            caption.style.color = "#07172F";
+
+            caption.innerHTML = "You may want to pay attention to this condition:"
+            labelContainer.appendChild(caption);
+
+            for (let i = 0; i < maxPredictions; i++) { // and class labels
+                labelContainer.appendChild(document.createElement("div"));
+            }
+        }
+
+        async function loop() {
+            webcam.update(); // update the webcam frame
+            await predict();
+            window.requestAnimationFrame(loop);
+        }
+
+        // run the webcam image through the image model
+        async function predict() {
+            // predict can take in an image, video or canvas html element
+            const prediction = await model.predict(webcam.canvas);
+            for (let i = 0; i < maxPredictions; i++) {
+                const classPrediction =
+                    prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+                labelContainer.childNodes[i + 1].innerHTML = classPrediction;
+            }
+        }
+
+        async function reveal() {
+            prediction = await model.predict(webcam.canvas);
+            let diagName = '';
+            let diagProb = 0;
+            for (let i = 0; i < prediction.length; i++) {
+                if (prediction[i].probability > diagProb) {
+                    diagName = prediction[i].className;
+                    diagProb = prediction[i].probability;
+                }
+            }
+            let resultSection = document.getElementById("result-section");
+            resultSection.style.backgroundColor = "orange";
+            resultSection.style.color = "white";
+            resultSection.innerHTML = diagName;
+        }
+    </script>
+
+</body>
+
+</html>

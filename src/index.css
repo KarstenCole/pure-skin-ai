@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Resort Sans";
+  src: url("./assets/fonts/Fontspring-DEMO-resort-sansregular.otf")
+    format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Resort Sans";
+  src: url("./assets/fonts/Fontspring-DEMO-resort-sansblack.otf")
+    format("opentype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+.font-roboto-flex {
+  font-family: "Roboto Flex", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+  font-variation-settings: "slnt" 0, "wdth" 100, "GRAD" 0, "XOPQ" 96, "XTRA" 468,
+    "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
+}
+
+.webcam-container {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  border: 2px solid #ccc;
+}
+
+.webcam-container canvas {
+  width: 100%;
+  height: auto;
+}
